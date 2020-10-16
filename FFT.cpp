@@ -3,24 +3,17 @@
 
 #include <iostream>
 #include <math.h>
-#include <fstream>
 
-#include "matrix.h"
-
-using namespace std;
-
-const double TwoPi = 6.283185307179586;
 const double Pi = 3.1415926535897932384626433832795;
+const double TwoPi = Pi*2.0;
 
-const double sens_num = 6;
-const int time_index = 0;
-const int sens_index = 1;
+
 
 ///За подробностями -- Т. Кормен, Ч. Лейзерсон, Р. Ривест, К. Штайн, "Алгоритмы. Построение и анализ", Второе издание. 2012 г., с. 926-942.
 ///частота найквиста оценивается до ~dt/2^N
 /// AVal - массив анализируемых данных, Nvl - длина массива должна быть кратна степени 2.
 /// FTvl - массив полученных значений, Nft - длина массива должна быть равна Nvl.
-void FFTAnalysis(double *AVal, double *FTvl, int Nvl, int Nft)
+void FFTAnalysis_length2degree(const double *AVal, double *FTvl, int Nvl, int Nft)
 {
   int i, j, n, m, Mmax, Istp;
   double Tmpr, Tmpi, Wtmp, Theta;
@@ -79,8 +72,13 @@ void FFTAnalysis(double *AVal, double *FTvl, int Nvl, int Nft)
   delete []Tmvl;
 }
 
+void FFTAnalysis_length_any(double *AVal, double *FTvl, int Nvl, int Nft)
+{
 
-matrix Gauss_Window(matrix F, double sigma)
+}
+
+
+/*matrix Gauss_Window(matrix F, double sigma)
 {
     matrix R(F.get_height(), F.get_width());
     double A = (F.get_height() - 1.0)/2.0, w = 0;
@@ -92,7 +90,7 @@ matrix Gauss_Window(matrix F, double sigma)
                 R.set_data(i, 1, w*F.get_data(i,1));
     }
     return R;
-};
+};*/
 
 
 double Hann_1_Window(double n, double N)
@@ -110,9 +108,9 @@ double Hamming_Window(double n, double N)
 double (*pHamming_Window)(double, double) = &Hamming_Window;
 
 void Zero_Addition(double* arr1, double* arr2, int& length, int add)
-{cout << "Zero_Addition(double* arr1, double* arr2, int& length, int add)\t" << length << "\tresult length\t";
+{
     if(add > 0)
-    { cout << "adding\t";
+    {
         double* n_arr1 = new double [length + add];
         double* n_arr2 = new double [length + add];
         for(int i = 0; i < length; i++)
@@ -129,10 +127,8 @@ void Zero_Addition(double* arr1, double* arr2, int& length, int add)
         delete [] arr2;
         arr1 = n_arr1;
         arr2 = n_arr2;
-
     length += add;
-    cout << length << endl;
-    }else{cout << "not added\n";}
+    }else{std::cerr << "not added\n";}
 
 };
 
@@ -149,17 +145,16 @@ int Spectr_Zero_Addition(int length, int zero_index)
 }
 
 void Get_Spectr(double *f, double* w, double window, int& length, int zero_index)
-{cout << "Get_Spectr(double *f, double* w, double window, int& length, int zero_index)\n";
+{
     int n_length = Spectr_Zero_Addition(length, zero_index);
     ///поправка мощности
-        double power_k; power_k = n_length/length;
+//        double power_k; power_k = n_length/length;
     ///дополнение окна нулями
     Zero_Addition(f, w, length, n_length - length);
-    FFTAnalysis(f, w, length, length);
-    cout << "FFT finished\n";
+    FFTAnalysis_length2degree(f, w, length, length);
 };
 
-void Get_Spectr(matrix F, matrix& W, double window, int zero_index)
+/*void Get_Spectr(matrix F, matrix& W, double window, int zero_index)
 {
     int n_length = Spectr_Zero_Addition(F.get_height(), zero_index);
     ///поправка мощности
@@ -308,9 +303,9 @@ matrix Get_Freq_Window_FFT(matrix D, int step_size, int window_size, int zero_in
                     f.set_data(0, 0, D.get_column(0).get_data(index_h + (int)window_size/2, 0));///время в середине участка и частота главной гармоники ///убрано!!!!!!!
                 f_m = f_m.merge_height(f, f_m.get_height());///собираем полученные частоты
                 index_h +=step_size;
-                cout /*<< f.get_data(0,0)*/ << "\tfinished\n";
+                cout << "\tfinished\n";
             }
             return f_m;
-}
+}*/
 
 #endif // FFT_CPP_INCLUDED
