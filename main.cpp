@@ -35,7 +35,7 @@ void Save_spectrum(const double t_discr, const double* power, const int data_siz
 
 int main()
 {
-    int data_size = 1024*8;
+    int data_size = 1024*4;
     double t_discr = 0.001;
     double* data = new double [data_size];
     double* spectrum = new double [data_size];
@@ -56,7 +56,13 @@ int main()
                         });
 
 
+    ///prep data to be in 2 degree
+    ///correct the resulting power (if zeroes was added)
+    ///this fuction implemented in outer with data arbitrary length
     FFTAnalysis_length2degree(data, spectrum, data_size, data_size);
+
+    ///make correct frequency determination
+
 
     Save_signal(t_discr, data, data_size);
     Save_spectrum(t_discr, spectrum, data_size);
