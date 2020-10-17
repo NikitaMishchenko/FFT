@@ -13,9 +13,9 @@ const double TwoPi = Pi*2.0;
 ///частота найквиста оценивается до ~dt/2^N
 /// AVal - массив анализируемых данных, Nvl - длина массива должна быть кратна степени 2.
 /// FTvl - массив полученных значений, Nft - длина массива должна быть равна Nvl.
-void FFTAnalysis_length2degree(const double *AVal, double *FTvl, int Nvl, int Nft)
+void FFTAnalysis_length2degree(const double *AVal, double *FTvl, const size_t &Nvl, size_t &Nft)
 {
-  int i, j, n, m, Mmax, Istp;
+  size_t i, j, n, m, Mmax, Istp;
   double Tmpr, Tmpi, Wtmp, Theta;
   double Wpr, Wpi, Wr, Wi;
   double *Tmvl;
@@ -72,8 +72,37 @@ void FFTAnalysis_length2degree(const double *AVal, double *FTvl, int Nvl, int Nf
   delete []Tmvl;
 }
 
-void FFTAnalysis_length_any(double *AVal, double *FTvl, int Nvl, int Nft)
+void FFTAnalysis_length_any( double *AVal, double *FTvl, const size_t &Nvl, size_t &Nft)///Nvl initial size /// Nft size coerrectd
 {
+    ///find correct length
+    size_t correct_size = 2;
+    while(correct_size < Nvl)
+        correct_size *=2;
+            std::cout << "size_corrected to " << correct_size << " in order to fit " << Nvl << std::endl;
+
+    ///(increase with empty data)
+    double* new_AVal =  new double [correct_size];
+    FTvl = new double [correct_size];
+
+    for(size_t i = 0; i < Nvl; ++i)
+        new_AVal[i] = AVal[i];
+    for(size_t i  = Nvl; i < correct_size; ++i)
+        new_AVal[i] = 0.0;
+
+    delete [] AVal;
+    AVal = new_AVal;
+
+    ///power fix
+    double power_correction_coeff = static_cast<double>(correct_size)/Nvl; ///correct_power = power*power_ckrrection_coeff
+    std::cout << "power correction "  << power_correction_coeff << std::endl;
+
+
+    Nft = correct_size;
+    FFTAnalysis_length2degree(new_AVal, FTvl, Nft, Nft);
+
+    ///spectrum correction
+    for(size_t i = 0; i < Nft; ++i)
+        FTvl[i] *= power_correction_coeff;
 
 }
 
@@ -151,7 +180,7 @@ void Get_Spectr(double *f, double* w, double window, int& length, int zero_index
 //        double power_k; power_k = n_length/length;
     ///дополнение окна нулями
     Zero_Addition(f, w, length, n_length - length);
-    FFTAnalysis_length2degree(f, w, length, length);
+//    FFTAnalysis_length2degree(f, w, length, length);
 };
 
 /*void Get_Spectr(matrix F, matrix& W, double window, int zero_index)

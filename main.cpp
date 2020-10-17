@@ -29,43 +29,47 @@ void Save_spectrum(const double t_discr, const double* power, const int data_siz
 {
     std::ofstream fout("spectrum.test");
     for(int i = 0; i < data_size/2; i++)
-        fout << i/t_discr/data_size << "\t" << power[i] << std::endl;
+        fout << i/t_discr/data_size << "\t" << log(power[i]) << std::endl;
     fout.close();
 }
 
 int main()
 {
-    int data_size = 1024*4;
+    size_t data_size = 1024;
     double t_discr = 0.001;
     double* data = new double [data_size];
     double* spectrum = new double [data_size];
 
     int harm_counter = 2;
-    double freq [harm_counter] = {10,25};
-    double phase [harm_counter] = {0,1};
-    double ampl [harm_counter] = {1,10};
+    double freq [harm_counter] = {10, 30};
+    double phase [harm_counter] = {0,0};
+    double ampl [harm_counter] = {1,3};
 
     signal_discretized( t_discr, data, data_size,
                        freq, phase, ampl, harm_counter,
                         [](double time, double* freq, double* phase, double* ampl, int harm_counter)
                         {
-                           double s = 0;
-                            for(int i = 0; i < harm_counter; i++)
+                            double s = 0;
+                            for(int i = 0; i < harm_counter; ++i)
                                 s += ampl[i]*sin(freq[i]*time*TwoPi + phase[i]);
-                                return s;
+                            return s;
                         });
 
 
     ///prep data to be in 2 degree
     ///correct the resulting power (if zeroes was added)
     ///this fuction implemented in outer with data arbitrary length
-    FFTAnalysis_length2degree(data, spectrum, data_size, data_size);
+
+    size_t new_size = data_size;
+    FFTAnalysis_length2degree(data, spectrum, data_size, new_size);
+
+    ///FFTAnalysis_length_any(data, spectrum, data_size, new_size);
 
     ///make correct frequency determination
 
 
-    Save_signal(t_discr, data, data_size);
-    Save_spectrum(t_discr, spectrum, data_size);
+    Save_signal(t_discr, data, new_size);
+    Save_spectrum(t_discr, spectrum, new_size);
 
     delete [] data;
     delete [] spectrum;

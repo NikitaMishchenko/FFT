@@ -1,7 +1,8 @@
 #ifndef FFT_H_INCLUDED
 #define FFT_H_INCLUDED
 
-void FFTAnalysis_length2degree(const double *AVal, double *FTvl, int Nvl, int Nft);
+void FFTAnalysis_length2degree(const double *AVal, double *FTvl, const size_t &Nvl, size_t &Nft);
+void FFTAnalysis_length_any( double *AVal, double *FTvl, const size_t &Nvl, size_t &Nft);
 
 //matrix Gauss_Window(matrix F, double sigma);///возвращает сигнал умноженный на гаусс
 
