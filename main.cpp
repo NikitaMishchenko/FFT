@@ -35,7 +35,7 @@ void Save_spectrum(const double t_discr, const double* power, const int data_siz
 
 int main()
 {
-    size_t data_size = 1024;
+    size_t data_size = 1024/8;
     double t_discr = 0.001;
     double* data = new double [data_size];
     double* spectrum = new double [data_size];
@@ -61,15 +61,18 @@ int main()
     ///this fuction implemented in outer with data arbitrary length
 
     size_t new_size = data_size;
-    FFTAnalysis_length2degree(data, spectrum, data_size, new_size);
-
+    ///FFTAnalysis_length2degree(data, spectrum, data_size, new_size);
     ///FFTAnalysis_length_any(data, spectrum, data_size, new_size);
+    simple_FFT F(data, data_size, t_discr);
+        F.check_length();
+    F.general_FFT_2degree();
+
 
     ///make correct frequency determination
 
 
-    Save_signal(t_discr, data, new_size);
-    Save_spectrum(t_discr, spectrum, new_size);
+    //Save_signal(t_discr, data, new_size);
+    //Save_spectrum(t_discr, spectrum, new_size);
 
     delete [] data;
     delete [] spectrum;

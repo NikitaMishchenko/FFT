@@ -4,17 +4,50 @@
 #include <iostream>
 #include <math.h>
 
+#include "FFT.h"
+
 const double Pi = 3.1415926535897932384626433832795;
 const double TwoPi = Pi*2.0;
 
+simple_FFT::simple_FFT(double* n_signal, size_t n_size, double n_discr_t){
+    discr_t = n_discr_t;
+    Nvl = n_size;
+        signal = new double [Nvl];
+        time = new double [Nvl];
+
+    for(size_t i = 0; i < Nvl; ++i){
+        signal[i] = n_signal[i];
+        time[i] = i*discr_t;
+    }
+}
+
+bool simple_FFT::check_length(){
+    ///find correct length
+    size_t correct_size = 2;
+    while(correct_size < Nvl)
+        correct_size *=2;
+    //std::cout << "size_corrected to " << correct_size << " in order to fit " << Nvl << std::endl;
+    if(Nvl != correct_size)
+        return false;
+    return true;
+}
+
+void simple_FFT::general_FFT_2degree(){
+    if(this->check_length()){
+        power = new double [Nvl];
+        FFTAnalysis_length2degree(signal, power, Nvl, Nft);
+    }else{
+        std::cerr << "Wrong length\n";
+        ///fix length problem
+    }
+}
 
 
 ///За подробностями -- Т. Кормен, Ч. Лейзерсон, Р. Ривест, К. Штайн, "Алгоритмы. Построение и анализ", Второе издание. 2012 г., с. 926-942.
 ///частота найквиста оценивается до ~dt/2^N
 /// AVal - массив анализируемых данных, Nvl - длина массива должна быть кратна степени 2.
 /// FTvl - массив полученных значений, Nft - длина массива должна быть равна Nvl.
-void FFTAnalysis_length2degree(const double *AVal, double *FTvl, const size_t &Nvl, size_t &Nft)
-{
+void FFTAnalysis_length2degree(const double *AVal, double *FTvl, const size_t &Nvl, size_t &Nft){
   size_t i, j, n, m, Mmax, Istp;
   double Tmpr, Tmpi, Wtmp, Theta;
   double Wpr, Wpi, Wr, Wi;
@@ -173,7 +206,7 @@ int Spectr_Zero_Addition(int length, int zero_index)
     return n_length;
 }
 
-void Get_Spectr(double *f, double* w, double window, int& length, int zero_index)
+/*void Get_Spectr(double *f, double* w, double window, int& length, int zero_index)
 {
     int n_length = Spectr_Zero_Addition(length, zero_index);
     ///поправка мощности
@@ -183,7 +216,7 @@ void Get_Spectr(double *f, double* w, double window, int& length, int zero_index
 //    FFTAnalysis_length2degree(f, w, length, length);
 };
 
-/*void Get_Spectr(matrix F, matrix& W, double window, int zero_index)
+void Get_Spectr(matrix F, matrix& W, double window, int zero_index)
 {
     int n_length = Spectr_Zero_Addition(F.get_height(), zero_index);
     ///поправка мощности
