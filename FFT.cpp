@@ -9,14 +9,27 @@
 const double Pi = 3.1415926535897932384626433832795;
 const double TwoPi = Pi*2.0;
 
-simple_FFT::simple_FFT(double* n_signal, size_t n_size, double n_discr_t){
+simple_FFT::simple_FFT(double* n_signal, size_t n_size, const double &n_discr_t, const int &zeroes_fitting_factor){
     discr_t = n_discr_t;
     Nvl = n_size;
-        signal = new double [Nvl];
-        time = new double [Nvl];
 
+    ///find length as 2 degree number
+    Nft = 1;
+    while(Nft < n_size)
+        Nft *=2;
+            Nft *= pow(2, zeroes_fitting_factor);
+
+    signal = new double [Nft];
+    time = new double [Nft];
+
+    ///loading data
     for(size_t i = 0; i < Nvl; ++i){
         signal[i] = n_signal[i];
+        time[i] = i*discr_t;
+    }
+    ///fitiing zeroes
+    for(size_t i = n_size; i < Nft; ++i){
+        signal[i] = 0.0;
         time[i] = i*discr_t;
     }
 }
@@ -26,22 +39,31 @@ bool simple_FFT::check_length(){
     size_t correct_size = 2;
     while(correct_size < Nvl)
         correct_size *=2;
-    //std::cout << "size_corrected to " << correct_size << " in order to fit " << Nvl << std::endl;
+
     if(Nvl != correct_size)
         return false;
     return true;
 }
 
-void simple_FFT::general_FFT_2degree(){
-    if(this->check_length()){
-        power = new double [Nvl];
-        FFTAnalysis_length2degree(signal, power, Nvl, Nft);
-    }else{
-        std::cerr << "Wrong length\n";
-        ///fix length problem
-    }
+simple_FFT::~simple_FFT()
+{
+    delete [] signal;
+    delete [] time;
+    delete [] power;
+    delete [] freq;
 }
 
+bool simple_FFT::general_FFT(){
+    if(this->check_length()){
+        power = new double [Nvl];
+        FFTAnalysis_length2degree(signal, power, Nvl, Nvl);
+        return true;
+    }else{
+        power = new double [Nft];
+        FFTAnalysis_length2degree(signal, power, Nft, Nft);
+        return false;
+    }
+}
 
 ///За подробностями -- Т. Кормен, Ч. Лейзерсон, Р. Ривест, К. Штайн, "Алгоритмы. Построение и анализ", Второе издание. 2012 г., с. 926-942.
 ///частота найквиста оценивается до ~dt/2^N

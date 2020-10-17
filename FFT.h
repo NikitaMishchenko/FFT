@@ -3,16 +3,22 @@
 
 class simple_FFT
 {
+private:
+protected:
+public:
     double* signal;
     double* time;
     double discr_t;
     size_t Nvl; ///length of input data
 
-public:
+
     ///copy signal into class, create time array with assumption of constant discretization
-    simple_FFT(double* signal, size_t length, double discr_t);
+    simple_FFT(double* signal, size_t length, const double &discr_t, const int &zeroes_fitting_factor);
+        //simple_FFT(double* signal, size_t length, double discr_t);
+    ~simple_FFT();
     bool check_length(); ///is_signal_2degree()
-    void general_FFT_2degree();
+    bool general_FFT();/// is_zeroes added
+
 
     double* power;
     double* freq;

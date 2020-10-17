@@ -20,7 +20,7 @@ void signal_discretized(const double discretization, double *result, const int d
 void Save_signal(const double t_discr, const double *signal, const int data_size)
 {
     std::ofstream fout("sin_discretized.test");
-    for(int i = 0; i < data_size; i++)
+    for(size_t i = 0; i < data_size; i++)
         fout << i*t_discr << "\t" << signal[i] << std::endl;
     fout.close();
 }
@@ -28,14 +28,14 @@ void Save_signal(const double t_discr, const double *signal, const int data_size
 void Save_spectrum(const double t_discr, const double* power, const int data_size)
 {
     std::ofstream fout("spectrum.test");
-    for(int i = 0; i < data_size/2; i++)
+    for(size_t i = 0; i < data_size/2; i++)
         fout << i/t_discr/data_size << "\t" << log(power[i]) << std::endl;
     fout.close();
 }
 
 int main()
 {
-    size_t data_size = 1024/8;
+    size_t data_size = 1024*4;
     double t_discr = 0.001;
     double* data = new double [data_size];
     double* spectrum = new double [data_size];
@@ -60,19 +60,17 @@ int main()
     ///correct the resulting power (if zeroes was added)
     ///this fuction implemented in outer with data arbitrary length
 
-    size_t new_size = data_size;
     ///FFTAnalysis_length2degree(data, spectrum, data_size, new_size);
     ///FFTAnalysis_length_any(data, spectrum, data_size, new_size);
-    simple_FFT F(data, data_size, t_discr);
-        F.check_length();
-    F.general_FFT_2degree();
+    simple_FFT F(data, data_size, t_discr, 0);
+        std::cout << F.general_FFT() << std::endl;
 
 
     ///make correct frequency determination
 
 
-    //Save_signal(t_discr, data, new_size);
-    //Save_spectrum(t_discr, spectrum, new_size);
+    Save_signal(t_discr, F.signal, F.Nft);
+    Save_spectrum(t_discr, F.power, F.Nft);
 
     delete [] data;
     delete [] spectrum;
